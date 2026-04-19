@@ -1,0 +1,59 @@
+<div
+  class="day-cell"
+  [class.other-month]="!day.isCurrentMonth"
+  [class.is-today]="day.isToday"
+  [class.has-appointments]="day.appointments.length > 0"
+  [attr.aria-label]="'Dia ' + day.day">
+
+  <!-- Day number + "add" button -->
+  <div class="cell-header">
+    <span class="day-number" [class.today-badge]="day.isToday">
+      {{ day.day }}
+    </span>
+    @if (day.isCurrentMonth) {
+      <button
+        type="button"
+        class="btn-add"
+        id="btn-new-schedule-day-{{ day.day }}"
+        matTooltip="Novo agendamento"
+        (click)="onNewSchedule($event)">
+        <span class="material-icons-round">add</span>
+      </button>
+    }
+  </div>
+
+  <!-- Appointment cards -->
+  <div class="apt-list">
+    @for (apt of visibleApts; track apt.id) {
+      <div
+        class="apt-card"
+        [class.is-deleting]="isDeleting(apt.id)"
+        [attr.aria-label]="apt.clientName + ' ' + apt.startTime">
+
+        <div class="apt-info">
+          <span class="apt-time">{{ apt.startTime }}</span>
+          <span class="apt-name">{{ apt.clientName }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="apt-delete"
+          id="btn-delete-schedule-{{ apt.id }}"
+          matTooltip="Cancelar agendamento"
+          [disabled]="isDeleting(apt.id)"
+          (click)="onDelete($event, apt.id)">
+          @if (isDeleting(apt.id)) {
+            <div class="apt-spinner"></div>
+          } @else {
+            <span class="material-icons-round">close</span>
+          }
+        </button>
+      </div>
+    }
+
+    @if (hiddenCount > 0) {
+      <span class="apt-more">+{{ hiddenCount }} mais</span>
+    }
+  </div>
+
+</div>

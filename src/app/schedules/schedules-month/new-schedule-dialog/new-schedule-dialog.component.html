@@ -1,0 +1,102 @@
+<div class="nsd-overlay" (click)="onCancel()">
+  <div class="nsd-panel animate-scale-in" role="dialog" aria-modal="true"
+       aria-labelledby="nsd-title" (click)="$event.stopPropagation()">
+
+    <!-- ── Header ── -->
+    <div class="nsd-header">
+      <div class="nsd-header-icon">
+        <span class="material-icons-round">event_available</span>
+      </div>
+      <div class="nsd-header-text">
+        <h2 id="nsd-title" class="nsd-title">Novo Agendamento</h2>
+        <p class="nsd-sub">Preencha os dados para criar um agendamento</p>
+      </div>
+      <button type="button" class="nsd-close" aria-label="Fechar" (click)="onCancel()">
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="nsd-body">
+
+      <!-- Client select -->
+      <div class="field-group">
+        <label class="field-label" for="nsd-client">
+          <span class="material-icons-round label-icon">person</span>
+          Cliente
+        </label>
+        <div class="select-wrap">
+          <select
+            id="nsd-client"
+            class="field-select"
+            [(ngModel)]="clientId"
+            [disabled]="isSaving">
+            <option [ngValue]="null" disabled selected>Selecione o cliente...</option>
+            @for (c of clients; track c.id) {
+              <option [ngValue]="c.id">{{ c.name }}</option>
+            }
+          </select>
+          <span class="select-arrow material-icons-round">expand_more</span>
+        </div>
+        @if (clients.length === 0) {
+          <span class="field-hint warn">
+            <span class="material-icons-round">warning_amber</span>
+            Nenhum cliente cadastrado.
+          </span>
+        }
+      </div>
+
+      <!-- Start datetime -->
+      <div class="field-group">
+        <label class="field-label" for="nsd-start">
+          <span class="material-icons-round label-icon">schedule</span>
+          Início
+        </label>
+        <input
+          id="nsd-start"
+          type="datetime-local"
+          class="field-input"
+          [(ngModel)]="startAt"
+          (ngModelChange)="onStartChange()"
+          [disabled]="isSaving" />
+      </div>
+
+      <!-- End datetime -->
+      <div class="field-group">
+        <label class="field-label" for="nsd-end">
+          <span class="material-icons-round label-icon">timer_off</span>
+          Término
+        </label>
+        <input
+          id="nsd-end"
+          type="datetime-local"
+          class="field-input"
+          [(ngModel)]="endAt"
+          [disabled]="isSaving" />
+        @if (startAt && endAt && startAt >= endAt) {
+          <span class="field-hint error">O término deve ser após o início.</span>
+        }
+      </div>
+
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="nsd-footer">
+      <button type="button" class="btn-cancel" id="nsd-btn-cancel"
+              [disabled]="isSaving" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-save" id="nsd-btn-save"
+              [disabled]="!isFormValid || isSaving" (click)="onSave()">
+        @if (isSaving) {
+          <div class="btn-spinner"></div>
+          Salvando...
+        } @else {
+          <span class="material-icons-round">check</span>
+          Confirmar
+        }
+      </button>
+    </div>
+
+  </div>
+</div>
