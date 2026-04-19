@@ -1,0 +1,371 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Schedules Month Page — Premium Calendar Layout
+// ─────────────────────────────────────────────────────────────────────────────
+
+.sm-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0 0 3rem;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Toolbar
+// ─────────────────────────────────────────────────────────────────────────────
+
+.sm-toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+}
+
+// ── Month Navigation ──────────────────────────────────────────────────────────
+
+.toolbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  @media (max-width: 640px) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+.btn-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--clr-text-muted);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+
+  .material-icons-round { font-size: 1.2rem; }
+
+  &:hover {
+    border-color: var(--clr-primary);
+    color: var(--clr-primary);
+    background: var(--clr-primary-glow);
+  }
+}
+
+.month-label-wrap {
+  min-width: 170px;
+  text-align: center;
+}
+
+.month-label {
+  font-family: var(--font-brand);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--clr-text);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+// ── Toolbar Centre ─────────────────────────────────────────────────────────────
+
+.toolbar-info {
+  display: flex;
+  justify-content: center;
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+.count-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--clr-text-muted);
+  white-space: nowrap;
+
+  .material-icons-round { font-size: 1rem; color: var(--clr-primary); }
+}
+
+// ── Toolbar Actions ────────────────────────────────────────────────────────────
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  @media (max-width: 640px) {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+}
+
+.btn-today {
+  padding: 0.5rem 0.875rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-full);
+  color: var(--clr-text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--clr-border-hover);
+    color: var(--clr-text);
+    background: var(--clr-surface-2);
+  }
+}
+
+.btn-new-schedule {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--grad-primary);
+  color: #0d0d0f;
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  white-space: nowrap;
+
+  .material-icons-round { font-size: 1.1rem; }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+  }
+  &:active { transform: translateY(0); }
+}
+
+.btn-label {
+  @media (max-width: 480px) { display: none; }
+}
+
+.btn-icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--clr-text-muted);
+  transition: all var(--transition-fast);
+
+  .material-icons-round { font-size: 1.15rem; }
+
+  &:hover {
+    border-color: var(--clr-border-hover);
+    color: var(--clr-text);
+    background: var(--clr-surface-2);
+  }
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.spinning { animation: spin 0.8s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Calendar Card
+// ─────────────────────────────────────────────────────────────────────────────
+
+.cal-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.card-accent {
+  height: 3px;
+  background: var(--grad-primary);
+}
+
+// ── Weekday Row ───────────────────────────────────────────────────────────────
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--clr-surface-2);
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.weekday-label {
+  padding: 0.5rem 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--clr-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+
+  // Highlight weekend columns
+  &:nth-child(6),
+  &:nth-child(7) { color: var(--clr-primary); }
+}
+
+// ── Calendar Grid ─────────────────────────────────────────────────────────────
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  // No explicit rows — auto-filled
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Skeleton
+// ─────────────────────────────────────────────────────────────────────────────
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--clr-surface-2) 25%,
+    var(--clr-surface-3) 50%,
+    var(--clr-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-grid { }
+
+.skeleton-cell {
+  min-height: 96px;
+  padding: 0.5rem;
+  border-right: 1px solid var(--clr-border);
+  border-bottom: 1px solid var(--clr-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &:nth-child(7n) { border-right: none; }
+}
+
+.sk-day-num {
+  width: 20px;
+  height: 14px;
+  align-self: flex-start;
+}
+
+.sk-apt {
+  height: 22px;
+  width: 90%;
+  border-radius: var(--radius-sm);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Empty State
+// ─────────────────────────────────────────────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 2rem;
+  gap: 1rem;
+  text-align: center;
+  border-top: 1px solid var(--clr-border);
+}
+
+.empty-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon {
+  font-size: 2.25rem;
+  color: var(--clr-text-subtle);
+}
+
+.empty-title {
+  font-family: var(--font-brand);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--clr-text);
+  margin: 0;
+}
+
+.empty-sub {
+  color: var(--clr-text-muted);
+  font-size: var(--text-sm);
+  margin: 0;
+  max-width: 360px;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Animations
+// ─────────────────────────────────────────────────────────────────────────────
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s ease both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Responsive — Mobile: stack days vertically
+// ─────────────────────────────────────────────────────────────────────────────
+
+@media (max-width: 640px) {
+  .cal-weekdays,
+  .cal-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+
+  .cal-card {
+    border-radius: var(--radius-lg);
+    font-size: 0.75rem;
+  }
+}
