@@ -1,77 +1,353 @@
-<section class="form-section animate-fade-in-up">
-  <div class="form-card">
-    <div class="form-card-accent"></div>
+<section class="ec-wrapper animate-fade-in-up">
 
-    @if (isFetching) {
-      <div class="loading-state">
-        <mat-spinner diameter="40" color="accent"></mat-spinner>
-        <p>Carregando dados do cliente...</p>
-      </div>
-    } @else {
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" id="edit-client-form" novalidate>
+  <!-- ══════════════ LEFT: Client Info Panel ══════════════════════ -->
+  <aside class="ec-info-panel">
+    <div class="info-inner">
 
-        <!-- Name -->
-        <mat-form-field appearance="outline" class="field-full">
-          <mat-label>Nome completo</mat-label>
-          <input matInput formControlName="name" id="input-name" placeholder="Ex: João da Silva" autocomplete="name">
-          <mat-icon matPrefix class="field-icon">person</mat-icon>
-          @if (hasError('name', 'required')) {
-            <mat-error>Nome é obrigatório</mat-error>
-          }
-          @if (hasError('name', 'minlength')) {
-            <mat-error>Mínimo de 3 caracteres</mat-error>
-          }
-        </mat-form-field>
+      <!-- Skeleton while loading -->
+      @if (isFetching) {
+        <div class="skeleton-block skeleton-avatar"></div>
+        <div class="skeleton-block skeleton-title"></div>
+        <div class="skeleton-block skeleton-line"></div>
+        <div class="skeleton-block skeleton-line short"></div>
+        <div class="skeleton-block skeleton-line"></div>
+      }
 
-        <!-- Email -->
-        <mat-form-field appearance="outline" class="field-full">
-          <mat-label>E-mail</mat-label>
-          <input matInput formControlName="email" id="input-email" type="email" placeholder="joao@email.com" autocomplete="email">
-          <mat-icon matPrefix class="field-icon">email</mat-icon>
-          @if (hasError('email', 'required')) {
-            <mat-error>E-mail é obrigatório</mat-error>
-          }
-          @if (hasError('email', 'email')) {
-            <mat-error>E-mail inválido</mat-error>
-          }
-        </mat-form-field>
-
-        <!-- Phone -->
-        <mat-form-field appearance="outline" class="field-full">
-          <mat-label>Telefone</mat-label>
-          <input matInput formControlName="phone" id="input-phone" mask="(00) 00000-0000" placeholder="(11) 99999-9999" autocomplete="tel">
-          <mat-icon matPrefix class="field-icon">phone</mat-icon>
-          @if (hasError('phone', 'required')) {
-            <mat-error>Telefone é obrigatório</mat-error>
-          }
-        </mat-form-field>
-
-        <!-- Actions -->
-        <div class="form-actions">
-          <button
-            type="button"
-            class="btn-dev-ghost"
-            id="btn-cancel-edit-client"
-            (click)="onCancel()"
-            [disabled]="isLoading">
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn-dev-primary"
-            id="btn-save-edit-client"
-            [disabled]="isLoading">
-            @if (isLoading) {
-              <mat-spinner diameter="18" color="accent"></mat-spinner>
-            } @else {
-              <span class="material-icons-round btn-icon">save</span>
-            }
-            {{ isLoading ? 'Atualizando...' : 'Atualizar Cliente' }}
-          </button>
+      <!-- Client card after load -->
+      @if (!isFetching && original) {
+        <div class="client-avatar animate-fade-in" aria-hidden="true">
+          <span class="avatar-initials">{{ original.name | slice:0:2 | uppercase }}</span>
+          <span class="avatar-ring"></span>
         </div>
 
-      </form>
-    }
-  </div>
+        <h2 class="client-name animate-fade-in">{{ original.name }}</h2>
+        <p class="client-id animate-fade-in"># ID {{ original.id }}</p>
+
+        <div class="info-divider"></div>
+
+        <!-- Data snapshot -->
+        <ul class="client-data-list" aria-label="Dados atuais do cliente">
+          <li class="data-item" [class.item-changed]="changed['name']">
+            <span class="material-icons-round data-icon">badge</span>
+            <div class="data-text">
+              <span class="data-label">Nome</span>
+              <span class="data-value">{{ original.name }}</span>
+            </div>
+            @if (changed['name']) {
+              <span class="changed-chip animate-fade-in">Modificado</span>
+            }
+          </li>
+          <li class="data-item" [class.item-changed]="changed['email']">
+            <span class="material-icons-round data-icon">alternate_email</span>
+            <div class="data-text">
+              <span class="data-label">E-mail</span>
+              <span class="data-value">{{ original.email }}</span>
+            </div>
+            @if (changed['email']) {
+              <span class="changed-chip animate-fade-in">Modificado</span>
+            }
+          </li>
+          <li class="data-item" [class.item-changed]="changed['phone']">
+            <span class="material-icons-round data-icon">smartphone</span>
+            <div class="data-text">
+              <span class="data-label">Telefone</span>
+              <span class="data-value">{{ formatPhone(original.phone) }}</span>
+            </div>
+            @if (changed['phone']) {
+              <span class="changed-chip animate-fade-in">Modificado</span>
+            }
+          </li>
+        </ul>
+
+        <!-- Changes summary -->
+        <div class="changes-summary" [class.has-changes]="hasChanges">
+          @if (hasChanges) {
+            <div class="changes-counter animate-fade-in">
+              <span class="material-icons-round">edit_note</span>
+              <span>{{ changesCount }} campo{{ changesCount > 1 ? 's' : '' }} modificado{{ changesCount > 1 ? 's' : '' }}</span>
+            </div>
+          } @else {
+            <div class="no-changes-info">
+              <span class="material-icons-round">check_circle</span>
+              <span>Nenhuma alteração</span>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </aside>
+
+  <!-- ══════════════ RIGHT: Form Panel ════════════════════════════ -->
+  <main class="ec-form-panel">
+    <div class="form-card" [class.success-state]="submitSuccess">
+
+      <!-- Top accent bar -->
+      <div class="form-card-accent"></div>
+
+      <!-- ── Success Overlay ── -->
+      @if (submitSuccess) {
+        <div class="success-overlay animate-fade-in">
+          <div class="success-circle">
+            <span class="material-icons-round success-check">check</span>
+          </div>
+          <h3 class="success-title">Cliente atualizado!</h3>
+          <p class="success-sub">Redirecionando para a lista...</p>
+        </div>
+      }
+
+      @if (!submitSuccess) {
+
+        <!-- ── Skeleton Form ── -->
+        @if (isFetching) {
+          <div class="form-skeleton">
+            <div class="sk-header">
+              <div class="skeleton-block sk-icon"></div>
+              <div class="sk-header-text">
+                <div class="skeleton-block sk-title"></div>
+                <div class="skeleton-block sk-sub"></div>
+              </div>
+            </div>
+            <div class="skeleton-block sk-field"></div>
+            <div class="skeleton-block sk-field"></div>
+            <div class="skeleton-block sk-field"></div>
+            <div class="sk-actions">
+              <div class="skeleton-block sk-btn"></div>
+              <div class="skeleton-block sk-btn wide"></div>
+            </div>
+          </div>
+        }
+
+        <!-- ── Edit Form ── -->
+        @if (!isFetching) {
+          <form
+            [formGroup]="form"
+            (ngSubmit)="onSubmit()"
+            id="edit-client-form"
+            novalidate
+            autocomplete="off"
+            class="animate-fade-in">
+
+            <!-- Form header -->
+            <div class="form-header">
+              <div class="form-header-icon">
+                <span class="material-icons-round">manage_accounts</span>
+              </div>
+              <div>
+                <h3 class="form-title">Editar Cliente</h3>
+                <p class="form-subtitle">Altere os campos que deseja atualizar</p>
+              </div>
+            </div>
+
+            <!-- ── No-changes warning ── -->
+            @if (warnNoChanges) {
+              <div class="warn-alert animate-fade-in" role="alert">
+                <span class="material-icons-round">info</span>
+                <span>Nenhum campo foi alterado. Modifique ao menos um campo para salvar.</span>
+              </div>
+            }
+
+            <!-- ── API Error alert ── -->
+            @if (apiError) {
+              <div class="api-error-alert animate-fade-in" role="alert">
+                <span class="material-icons-round alert-icon">error_outline</span>
+                <span>{{ apiError }}</span>
+                <button type="button" class="alert-close" (click)="apiError = ''" aria-label="Fechar">
+                  <span class="material-icons-round">close</span>
+                </button>
+              </div>
+            }
+
+            <!-- ── Fields ── -->
+            <div class="fields-grid">
+
+              <!-- Name -->
+              <div
+                class="field-wrapper"
+                [class.field-valid]="isFieldValid('name')"
+                [class.field-invalid]="isFieldInvalid('name')"
+                [class.field-changed]="changed['name']">
+                <label class="field-label" for="input-name">
+                  <span class="material-icons-round label-icon">badge</span>
+                  Nome completo
+                  <span class="required-badge">*</span>
+                  @if (changed['name']) {
+                    <span class="field-changed-tag">alterado</span>
+                  }
+                </label>
+                <div class="input-container">
+                  <input
+                    id="input-name"
+                    type="text"
+                    class="dev-input"
+                    formControlName="name"
+                    placeholder="Ex: João da Silva"
+                    autocomplete="off"
+                    maxlength="150" />
+                  <span class="input-status-icon material-icons-round">
+                    {{ isFieldValid('name') ? 'check_circle' : isFieldInvalid('name') ? 'cancel' : 'person' }}
+                  </span>
+                </div>
+                <div class="field-hint-row">
+                  @if (hasError('name', 'required')) {
+                    <span class="field-error animate-fade-in">
+                      <span class="material-icons-round err-icon">warning</span> Nome é obrigatório
+                    </span>
+                  } @else if (hasError('name', 'minlength')) {
+                    <span class="field-error animate-fade-in">
+                      <span class="material-icons-round err-icon">warning</span> Mínimo de 3 caracteres
+                    </span>
+                  } @else if (isFieldValid('name')) {
+                    <span class="field-success animate-fade-in">
+                      <span class="material-icons-round ok-icon">check_circle</span> Nome válido
+                    </span>
+                  } @else {
+                    <span class="field-hint">Nome completo do cliente</span>
+                  }
+                  <span class="char-count" [class.char-warn]="(nameCtrl.value?.length ?? 0) > 130">
+                    {{ nameCtrl.value?.length ?? 0 }}/150
+                  </span>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div
+                class="field-wrapper"
+                [class.field-valid]="isFieldValid('email')"
+                [class.field-invalid]="isFieldInvalid('email')"
+                [class.field-changed]="changed['email']">
+                <label class="field-label" for="input-email">
+                  <span class="material-icons-round label-icon">alternate_email</span>
+                  E-mail
+                  <span class="required-badge">*</span>
+                  @if (changed['email']) {
+                    <span class="field-changed-tag">alterado</span>
+                  }
+                </label>
+                <div class="input-container">
+                  <input
+                    id="input-email"
+                    type="email"
+                    class="dev-input"
+                    formControlName="email"
+                    placeholder="joao@email.com"
+                    autocomplete="off"
+                    maxlength="150" />
+                  <span class="input-status-icon material-icons-round">
+                    {{ isFieldValid('email') ? 'check_circle' : isFieldInvalid('email') ? 'cancel' : 'mail_outline' }}
+                  </span>
+                </div>
+                <div class="field-hint-row">
+                  @if (hasError('email', 'required')) {
+                    <span class="field-error animate-fade-in">
+                      <span class="material-icons-round err-icon">warning</span> E-mail é obrigatório
+                    </span>
+                  } @else if (hasError('email', 'email')) {
+                    <span class="field-error animate-fade-in">
+                      <span class="material-icons-round err-icon">warning</span> Formato de e-mail inválido
+                    </span>
+                  } @else if (isFieldValid('email')) {
+                    <span class="field-success animate-fade-in">
+                      <span class="material-icons-round ok-icon">check_circle</span> E-mail válido
+                    </span>
+                  } @else {
+                    <span class="field-hint">Usado para contato e login</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div
+                class="field-wrapper"
+                [class.field-valid]="isFieldValid('phone')"
+                [class.field-invalid]="isFieldInvalid('phone')"
+                [class.field-changed]="changed['phone']">
+                <label class="field-label" for="input-phone">
+                  <span class="material-icons-round label-icon">smartphone</span>
+                  Telefone (WhatsApp)
+                  <span class="required-badge">*</span>
+                  @if (changed['phone']) {
+                    <span class="field-changed-tag">alterado</span>
+                  }
+                </label>
+                <div class="input-container">
+                  <input
+                    id="input-phone"
+                    type="tel"
+                    class="dev-input"
+                    formControlName="phone"
+                    mask="(00) 00000-0000"
+                    placeholder="(11) 99999-9999"
+                    autocomplete="tel" />
+                  <span class="input-status-icon material-icons-round">
+                    {{ isFieldValid('phone') ? 'check_circle' : isFieldInvalid('phone') ? 'cancel' : 'phone_iphone' }}
+                  </span>
+                </div>
+                <div class="field-hint-row">
+                  @if (hasError('phone', 'required') || hasError('phone', 'minlength')) {
+                    <span class="field-error animate-fade-in">
+                      <span class="material-icons-round err-icon">warning</span> Telefone com DDD é obrigatório
+                    </span>
+                  } @else if (isFieldValid('phone')) {
+                    <span class="field-success animate-fade-in">
+                      <span class="material-icons-round ok-icon">check_circle</span> Telefone válido
+                    </span>
+                  } @else {
+                    <span class="field-hint">DDD + número com 11 dígitos</span>
+                  }
+                </div>
+              </div>
+
+            </div><!-- /fields-grid -->
+
+            <!-- ── Actions ── -->
+            <div class="form-actions">
+              <button
+                type="button"
+                id="btn-discard-edit-client"
+                class="btn-action btn-ghost"
+                [disabled]="isLoading || !hasChanges"
+                matTooltip="Descartar alterações e restaurar dados originais"
+                (click)="onDiscard()">
+                <span class="material-icons-round">restore</span>
+                Descartar
+              </button>
+
+              <div class="actions-right">
+                <button
+                  type="button"
+                  id="btn-cancel-edit-client"
+                  class="btn-action btn-text"
+                  [disabled]="isLoading"
+                  (click)="onCancel()">
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  id="btn-save-edit-client"
+                  class="btn-action btn-primary"
+                  [disabled]="isLoading || form.invalid"
+                  [class.btn-pending]="hasChanges && !isLoading">
+                  @if (isLoading) {
+                    <div class="btn-spinner"></div>
+                    <span>Salvando...</span>
+                  } @else {
+                    <span class="material-icons-round">save</span>
+                    <span>Salvar Alterações</span>
+                    @if (hasChanges) {
+                      <span class="changes-badge">{{ changesCount }}</span>
+                    }
+                  }
+                </button>
+              </div>
+            </div>
+
+          </form>
+        }
+      }
+
+    </div><!-- /form-card -->
+  </main>
+
 </section>
