@@ -1,23 +1,61 @@
-<header class="page-header animate-fade-in-up">
-  <!-- Barber icon accent -->
-  <div class="header-accent">
-    <span class="material-icons-round accent-icon">content_cut</span>
-  </div>
+<header class="page-header animate-fade-in-up" aria-label="Cabeçalho da página">
 
-  <!-- Title -->
-  <h1 class="header-title">
-    <ng-content></ng-content>
-  </h1>
+  <!-- ── Breadcrumb ─────────────────────────────────────────────── -->
+  @if (breadcrumbs.length > 0) {
+    <nav class="breadcrumb" aria-label="Caminho de navegação">
+      <a routerLink="/schedules/month" class="crumb crumb-home" aria-label="Início">
+        <span class="material-icons-round">home</span>
+      </a>
 
-  <!-- Optional subtitle -->
-  @if (subtitle) {
-    <p class="header-subtitle">{{ subtitle }}</p>
+      @for (crumb of breadcrumbs; track crumb.label; let last = $last) {
+        <span class="crumb-sep material-icons-round" aria-hidden="true">chevron_right</span>
+        @if (!last && crumb.path) {
+          <button class="crumb crumb-link" (click)="navigate(crumb.path)">
+            {{ crumb.label }}
+          </button>
+        } @else {
+          <span class="crumb crumb-current" aria-current="page">{{ crumb.label }}</span>
+        }
+      }
+    </nav>
   }
 
-  <!-- Decorative line -->
-  <div class="header-divider">
-    <span class="divider-line"></span>
-    <span class="divider-diamond"></span>
-    <span class="divider-line"></span>
+  <!-- ── Title Row ──────────────────────────────────────────────── -->
+  <div class="header-title-row">
+
+    <!-- Icon glyph -->
+    <div class="header-icon-wrap" aria-hidden="true">
+      <div class="icon-glow"></div>
+      <span class="material-icons-round header-icon">{{ icon }}</span>
+    </div>
+
+    <!-- Title + Badge -->
+    <div class="header-text">
+      <div class="title-badge-row">
+        <h1 class="header-title">
+          <ng-content></ng-content>
+        </h1>
+        @if (badge) {
+          <span class="header-badge badge-{{ badgeColor }}" role="status">{{ badge }}</span>
+        }
+      </div>
+
+      @if (subtitle) {
+        <p class="header-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+
   </div>
+
+  <!-- ── Decorative divider ─────────────────────────────────────── -->
+  <div class="header-divider" aria-hidden="true">
+    <span class="divider-line left"></span>
+    <span class="divider-center">
+      <span class="divider-diamond"></span>
+      <span class="divider-dot"></span>
+      <span class="divider-diamond"></span>
+    </span>
+    <span class="divider-line right"></span>
+  </div>
+
 </header>

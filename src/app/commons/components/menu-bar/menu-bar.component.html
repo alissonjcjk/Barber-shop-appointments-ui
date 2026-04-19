@@ -1,37 +1,84 @@
-<nav class="navbar" id="main-nav" role="navigation" aria-label="Navegação principal">
+<nav
+  class="navbar"
+  id="main-nav"
+  role="navigation"
+  aria-label="Navegação principal"
+  [class.scrolled]="scrolled"
+  [class.mobile-open]="mobileOpen">
 
-  <!-- Brand Logo -->
-  <a class="brand" routerLink="/schedules/month" id="brand-logo">
-    <span class="brand-icon material-icons-round">content_cut</span>
-    <span class="brand-name">Barber<span class="brand-accent">Dev</span></span>
+  <!-- ─── Brand ─────────────────────────────────────────────── -->
+  <a class="brand" routerLink="/schedules/month" id="brand-logo" aria-label="BarberDev — Início">
+    <div class="brand-logo-wrap">
+      <span class="material-icons-round brand-icon">content_cut</span>
+    </div>
+    <span class="brand-name">
+      Barber<span class="brand-accent">Dev</span>
+    </span>
+    <span class="brand-version">v1.0</span>
   </a>
 
-  <!-- Nav Items -->
-  <div class="nav-items">
+  <!-- ─── Desktop Nav ───────────────────────────────────────── -->
+  <div class="nav-items" role="menubar">
     @for (item of navItems; track item.label) {
-      <div class="nav-item" [class.open]="openMenu === item.label">
+      <div
+        class="nav-item"
+        [class.open]="openMenu === item.label"
+        [class.active]="isActive(item.path)"
+        role="none">
 
         <button
           class="nav-btn"
+          role="menuitem"
           [id]="'nav-' + item.label.toLowerCase()"
           [attr.aria-expanded]="openMenu === item.label"
+          [attr.aria-haspopup]="!!item.children"
           (click)="toggleMenu(item.label, $event)">
-          <span class="material-icons-round nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
+
+          <span class="nav-btn-inner">
+            <span class="material-icons-round nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+          </span>
+
           <span class="material-icons-round nav-arrow">
             {{ openMenu === item.label ? 'expand_less' : 'expand_more' }}
           </span>
+
+          <!-- Active underline indicator -->
+          @if (isActive(item.path)) {
+            <span class="active-bar" aria-hidden="true"></span>
+          }
         </button>
 
+        <!-- ─── Dropdown ─── -->
         @if (item.children && openMenu === item.label) {
-          <div class="dropdown animate-fade-in" (click)="$event.stopPropagation()">
+          <div
+            class="dropdown animate-fade-in"
+            role="menu"
+            [attr.aria-label]="item.label + ' submenu'"
+            (click)="$event.stopPropagation()">
+
+            <!-- Dropdown caret -->
+            <div class="dropdown-caret" aria-hidden="true"></div>
+
+            <!-- Section header -->
+            <div class="dropdown-section-label">{{ item.label }}</div>
+
             @for (child of item.children; track child.path) {
               <button
                 class="dropdown-item"
+                role="menuitem"
                 [id]="'nav-' + child.path.replace('/', '-')"
                 (click)="navigateTo(child.path)">
-                <span class="material-icons-round item-icon">{{ child.icon }}</span>
-                <span>{{ child.label }}</span>
+
+                <div class="item-icon-wrap">
+                  <span class="material-icons-round item-icon">{{ child.icon }}</span>
+                </div>
+
+                <div class="item-text">
+                  <span class="item-label">{{ child.label }}</span>
+                </div>
+
+                <span class="material-icons-round item-chevron">chevron_right</span>
               </button>
             }
           </div>
@@ -41,12 +88,65 @@
     }
   </div>
 
-  <!-- Right slot -->
+  <!-- ─── Right Slot ────────────────────────────────────────── -->
   <div class="nav-right">
-    <span class="status-badge">
-      <span class="status-dot"></span>
-      Online
-    </span>
+    <!-- API status badge -->
+    <div class="status-badge" id="api-status-badge" role="status" aria-label="API Online">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span class="status-text">Online</span>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button
+      class="hamburger"
+      id="btn-mobile-menu"
+      [class.is-active]="mobileOpen"
+      (click)="toggleMobile($event)"
+      aria-label="Abrir menu"
+      [attr.aria-expanded]="mobileOpen">
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+    </button>
   </div>
 
 </nav>
+
+<!-- ─── Mobile Drawer ──────────────────────────────────────── -->
+@if (mobileOpen) {
+  <div class="mobile-overlay animate-fade-in" (click)="toggleMobile($event)" aria-hidden="true"></div>
+
+  <div class="mobile-drawer animate-slide-in" role="dialog" aria-modal="true" aria-label="Menu de navegação">
+
+    <div class="drawer-header">
+      <div class="brand-logo-wrap small">
+        <span class="material-icons-round brand-icon">content_cut</span>
+      </div>
+      <span class="drawer-title">Barber<span class="brand-accent">Dev</span></span>
+    </div>
+
+    <nav class="drawer-nav" aria-label="Menu mobile">
+      @for (item of navItems; track item.label) {
+
+        <div class="drawer-section">
+          <p class="drawer-section-label">
+            <span class="material-icons-round">{{ item.icon }}</span>
+            {{ item.label }}
+          </p>
+
+          @for (child of item.children ?? []; track child.path) {
+            <button
+              class="drawer-item"
+              [class.active]="isActive(item.path)"
+              [id]="'mobile-nav-' + child.path.replace('/', '-')"
+              (click)="navigateTo(child.path)">
+              <span class="material-icons-round">{{ child.icon }}</span>
+              <span>{{ child.label }}</span>
+            </button>
+          }
+        </div>
+      }
+    </nav>
+
+  </div>
+}
