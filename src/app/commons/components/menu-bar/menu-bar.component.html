@@ -1,0 +1,52 @@
+<nav class="navbar" id="main-nav" role="navigation" aria-label="Navegação principal">
+
+  <!-- Brand Logo -->
+  <a class="brand" routerLink="/schedules/month" id="brand-logo">
+    <span class="brand-icon material-icons-round">content_cut</span>
+    <span class="brand-name">Barber<span class="brand-accent">Dev</span></span>
+  </a>
+
+  <!-- Nav Items -->
+  <div class="nav-items">
+    @for (item of navItems; track item.label) {
+      <div class="nav-item" [class.open]="openMenu === item.label">
+
+        <button
+          class="nav-btn"
+          [id]="'nav-' + item.label.toLowerCase()"
+          [attr.aria-expanded]="openMenu === item.label"
+          (click)="toggleMenu(item.label, $event)">
+          <span class="material-icons-round nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+          <span class="material-icons-round nav-arrow">
+            {{ openMenu === item.label ? 'expand_less' : 'expand_more' }}
+          </span>
+        </button>
+
+        @if (item.children && openMenu === item.label) {
+          <div class="dropdown animate-fade-in" (click)="$event.stopPropagation()">
+            @for (child of item.children; track child.path) {
+              <button
+                class="dropdown-item"
+                [id]="'nav-' + child.path.replace('/', '-')"
+                (click)="navigateTo(child.path)">
+                <span class="material-icons-round item-icon">{{ child.icon }}</span>
+                <span>{{ child.label }}</span>
+              </button>
+            }
+          </div>
+        }
+
+      </div>
+    }
+  </div>
+
+  <!-- Right slot -->
+  <div class="nav-right">
+    <span class="status-badge">
+      <span class="status-dot"></span>
+      Online
+    </span>
+  </div>
+
+</nav>

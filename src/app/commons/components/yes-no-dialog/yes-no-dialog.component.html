@@ -1,0 +1,33 @@
+<div class="dialog-wrapper">
+  <!-- Icon -->
+  <div class="dialog-icon">
+    <span class="material-icons-round">warning_amber</span>
+  </div>
+
+  <!-- Header -->
+  <h2 mat-dialog-title class="dialog-title">{{ data.title }}</h2>
+
+  <!-- Content -->
+  <mat-dialog-content class="dialog-content">
+    <p>{{ data.content }}</p>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button
+      mat-stroked-button
+      class="btn-cancel"
+      id="dialog-cancel-btn"
+      (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      mat-flat-button
+      class="btn-confirm"
+      id="dialog-confirm-btn"
+      color="warn"
+      (click)="onConfirm()">
+      Confirmar
+    </button>
+  </mat-dialog-actions>
+</div>

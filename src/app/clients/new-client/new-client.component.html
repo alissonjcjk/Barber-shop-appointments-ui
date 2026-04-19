@@ -1,0 +1,70 @@
+<section class="form-section animate-fade-in-up">
+  <div class="form-card">
+    <!-- Card top accent -->
+    <div class="form-card-accent"></div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="new-client-form" novalidate>
+
+      <!-- Name -->
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>Nome completo</mat-label>
+        <input matInput formControlName="name" id="input-name" placeholder="Ex: João da Silva" autocomplete="name">
+        <mat-icon matPrefix class="field-icon">person</mat-icon>
+        @if (hasError('name', 'required')) {
+          <mat-error>Nome é obrigatório</mat-error>
+        }
+        @if (hasError('name', 'minlength')) {
+          <mat-error>Mínimo de 3 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Email -->
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>E-mail</mat-label>
+        <input matInput formControlName="email" id="input-email" type="email" placeholder="joao@email.com" autocomplete="email">
+        <mat-icon matPrefix class="field-icon">email</mat-icon>
+        @if (hasError('email', 'required')) {
+          <mat-error>E-mail é obrigatório</mat-error>
+        }
+        @if (hasError('email', 'email')) {
+          <mat-error>E-mail inválido</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Phone -->
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>Telefone</mat-label>
+        <input matInput formControlName="phone" id="input-phone" mask="(00) 00000-0000" placeholder="(11) 99999-9999" autocomplete="tel">
+        <mat-icon matPrefix class="field-icon">phone</mat-icon>
+        @if (hasError('phone', 'required')) {
+          <mat-error>Telefone é obrigatório</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-dev-ghost"
+          id="btn-cancel-new-client"
+          (click)="onCancel()">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn-dev-primary"
+          id="btn-save-new-client"
+          [disabled]="isLoading">
+          @if (isLoading) {
+            <mat-spinner diameter="18" color="accent"></mat-spinner>
+          } @else {
+            <span class="material-icons-round btn-icon">save</span>
+          }
+          {{ isLoading ? 'Salvando...' : 'Salvar Cliente' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</section>

@@ -1,0 +1,23 @@
+<header class="page-header animate-fade-in-up">
+  <!-- Barber icon accent -->
+  <div class="header-accent">
+    <span class="material-icons-round accent-icon">content_cut</span>
+  </div>
+
+  <!-- Title -->
+  <h1 class="header-title">
+    <ng-content></ng-content>
+  </h1>
+
+  <!-- Optional subtitle -->
+  @if (subtitle) {
+    <p class="header-subtitle">{{ subtitle }}</p>
+  }
+
+  <!-- Decorative line -->
+  <div class="header-divider">
+    <span class="divider-line"></span>
+    <span class="divider-diamond"></span>
+    <span class="divider-line"></span>
+  </div>
+</header>
