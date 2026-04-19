@@ -1,70 +1,282 @@
-<section class="form-section animate-fade-in-up">
-  <div class="form-card">
-    <!-- Card top accent -->
-    <div class="form-card-accent"></div>
+<section class="nc-wrapper animate-fade-in-up">
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" id="new-client-form" novalidate>
+  <!-- ═══════════════════ LEFT — Branding Panel ═══════════════════ -->
+  <aside class="nc-branding">
+    <div class="brand-inner">
+      <span class="brand-scissor material-icons-round">content_cut</span>
 
-      <!-- Name -->
-      <mat-form-field appearance="outline" class="field-full">
-        <mat-label>Nome completo</mat-label>
-        <input matInput formControlName="name" id="input-name" placeholder="Ex: João da Silva" autocomplete="name">
-        <mat-icon matPrefix class="field-icon">person</mat-icon>
-        @if (hasError('name', 'required')) {
-          <mat-error>Nome é obrigatório</mat-error>
-        }
-        @if (hasError('name', 'minlength')) {
-          <mat-error>Mínimo de 3 caracteres</mat-error>
-        }
-      </mat-form-field>
+      <h2 class="brand-headline">
+        Cadastro de<br><span class="text-gradient">Cliente</span>
+      </h2>
+      <p class="brand-sub">
+        Adicione um novo cliente à sua base e comece a agendar serviços em segundos.
+      </p>
 
-      <!-- Email -->
-      <mat-form-field appearance="outline" class="field-full">
-        <mat-label>E-mail</mat-label>
-        <input matInput formControlName="email" id="input-email" type="email" placeholder="joao@email.com" autocomplete="email">
-        <mat-icon matPrefix class="field-icon">email</mat-icon>
-        @if (hasError('email', 'required')) {
-          <mat-error>E-mail é obrigatório</mat-error>
-        }
-        @if (hasError('email', 'email')) {
-          <mat-error>E-mail inválido</mat-error>
-        }
-      </mat-form-field>
+      <!-- Checklist de benefícios -->
+      <ul class="perk-list" aria-label="Benefícios">
+        <li class="perk-item">
+          <span class="perk-icon material-icons-round">check_circle</span>
+          <span>Agendamentos automáticos</span>
+        </li>
+        <li class="perk-item">
+          <span class="perk-icon material-icons-round">check_circle</span>
+          <span>Histórico de atendimentos</span>
+        </li>
+        <li class="perk-item">
+          <span class="perk-icon material-icons-round">check_circle</span>
+          <span>Notificações personalizadas</span>
+        </li>
+      </ul>
 
-      <!-- Phone -->
-      <mat-form-field appearance="outline" class="field-full">
-        <mat-label>Telefone</mat-label>
-        <input matInput formControlName="phone" id="input-phone" mask="(00) 00000-0000" placeholder="(11) 99999-9999" autocomplete="tel">
-        <mat-icon matPrefix class="field-icon">phone</mat-icon>
-        @if (hasError('phone', 'required')) {
-          <mat-error>Telefone é obrigatório</mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Actions -->
-      <div class="form-actions">
-        <button
-          type="button"
-          class="btn-dev-ghost"
-          id="btn-cancel-new-client"
-          (click)="onCancel()">
-          Cancelar
-        </button>
-
-        <button
-          type="submit"
-          class="btn-dev-primary"
-          id="btn-save-new-client"
-          [disabled]="isLoading">
-          @if (isLoading) {
-            <mat-spinner diameter="18" color="accent"></mat-spinner>
-          } @else {
-            <span class="material-icons-round btn-icon">save</span>
-          }
-          {{ isLoading ? 'Salvando...' : 'Salvar Cliente' }}
-        </button>
+      <!-- Progresso de preenchimento -->
+      <div class="progress-box">
+        <div class="progress-header">
+          <span class="progress-label">Progresso do formulário</span>
+          <span class="progress-pct" [style.color]="progressColor()">
+            {{ formProgress }}%
+          </span>
+        </div>
+        <div class="progress-track">
+          <div
+            class="progress-fill"
+            [style.width.%]="formProgress"
+            [style.background]="progressColor()">
+          </div>
+        </div>
       </div>
+    </div>
+  </aside>
 
-    </form>
-  </div>
+  <!-- ═══════════════════ RIGHT — Form Panel ═══════════════════════ -->
+  <main class="nc-form-panel">
+    <div class="form-card" [class.success-state]="submitSuccess">
+
+      <!-- Top accent gradient bar -->
+      <div class="form-card-accent"></div>
+
+      <!-- ── Success Overlay ── -->
+      @if (submitSuccess) {
+        <div class="success-overlay animate-fade-in">
+          <div class="success-circle">
+            <span class="material-icons-round success-check">check</span>
+          </div>
+          <h3 class="success-title">Cliente cadastrado!</h3>
+          <p class="success-sub">Redirecionando para a lista...</p>
+        </div>
+      }
+
+      <!-- ── Form ── -->
+      @if (!submitSuccess) {
+        <form
+          [formGroup]="form"
+          (ngSubmit)="onSubmit()"
+          id="new-client-form"
+          novalidate
+          autocomplete="off">
+
+          <!-- Form header -->
+          <div class="form-header">
+            <div class="form-header-icon">
+              <span class="material-icons-round">person_add</span>
+            </div>
+            <div>
+              <h3 class="form-title">Novo Cliente</h3>
+              <p class="form-subtitle">Preencha os dados abaixo</p>
+            </div>
+          </div>
+
+          <!-- ── API Error Alert ── -->
+          @if (apiError) {
+            <div class="api-error-alert animate-fade-in" role="alert">
+              <span class="material-icons-round alert-icon">error_outline</span>
+              <span>{{ apiError }}</span>
+              <button type="button" class="alert-close" (click)="apiError = ''" aria-label="Fechar alerta">
+                <span class="material-icons-round">close</span>
+              </button>
+            </div>
+          }
+
+          <!-- ── Fields ── -->
+          <div class="fields-grid">
+
+            <!-- Name -->
+            <div class="field-wrapper" [class.field-valid]="isFieldValid('name')" [class.field-invalid]="isFieldInvalid('name')">
+              <label class="field-label" for="input-name">
+                <span class="material-icons-round label-icon">badge</span>
+                Nome completo
+                <span class="required-badge">*</span>
+              </label>
+              <div class="input-container">
+                <input
+                  id="input-name"
+                  type="text"
+                  class="dev-input"
+                  formControlName="name"
+                  placeholder="Ex: João da Silva"
+                  autocomplete="name"
+                  maxlength="150" />
+                <span class="input-status-icon material-icons-round">
+                  {{ isFieldValid('name') ? 'check_circle' : isFieldInvalid('name') ? 'cancel' : 'person' }}
+                </span>
+              </div>
+              <div class="field-hint-row">
+                @if (hasError('name', 'required')) {
+                  <span class="field-error animate-fade-in">
+                    <span class="material-icons-round err-icon">warning</span>
+                    Nome é obrigatório
+                  </span>
+                } @else if (hasError('name', 'minlength')) {
+                  <span class="field-error animate-fade-in">
+                    <span class="material-icons-round err-icon">warning</span>
+                    Mínimo de 3 caracteres
+                  </span>
+                } @else if (isFieldValid('name')) {
+                  <span class="field-success animate-fade-in">
+                    <span class="material-icons-round ok-icon">check_circle</span>
+                    Nome válido
+                  </span>
+                } @else {
+                  <span class="field-hint">Insira o nome completo do cliente</span>
+                }
+                <span class="char-count" [class.char-warn]="(nameCtrl.value?.length ?? 0) > 130">
+                  {{ nameCtrl.value?.length ?? 0 }}/150
+                </span>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="field-wrapper" [class.field-valid]="isFieldValid('email')" [class.field-invalid]="isFieldInvalid('email')">
+              <label class="field-label" for="input-email">
+                <span class="material-icons-round label-icon">alternate_email</span>
+                E-mail
+                <span class="required-badge">*</span>
+              </label>
+              <div class="input-container">
+                <input
+                  id="input-email"
+                  type="email"
+                  class="dev-input"
+                  formControlName="email"
+                  placeholder="joao@email.com"
+                  autocomplete="off"
+                  maxlength="150" />
+                <span class="input-status-icon material-icons-round">
+                  {{ isFieldValid('email') ? 'check_circle' : isFieldInvalid('email') ? 'cancel' : 'mail_outline' }}
+                </span>
+              </div>
+              <div class="field-hint-row">
+                @if (hasError('email', 'required')) {
+                  <span class="field-error animate-fade-in">
+                    <span class="material-icons-round err-icon">warning</span>
+                    E-mail é obrigatório
+                  </span>
+                } @else if (hasError('email', 'email')) {
+                  <span class="field-error animate-fade-in">
+                    <span class="material-icons-round err-icon">warning</span>
+                    Formato de e-mail inválido
+                  </span>
+                } @else if (isFieldValid('email')) {
+                  <span class="field-success animate-fade-in">
+                    <span class="material-icons-round ok-icon">check_circle</span>
+                    E-mail válido
+                  </span>
+                } @else {
+                  <span class="field-hint">Será usado para contato e identificação</span>
+                }
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="field-wrapper" [class.field-valid]="isFieldValid('phone')" [class.field-invalid]="isFieldInvalid('phone')">
+              <label class="field-label" for="input-phone">
+                <span class="material-icons-round label-icon">smartphone</span>
+                Telefone (WhatsApp)
+                <span class="required-badge">*</span>
+              </label>
+              <div class="input-container">
+                <input
+                  id="input-phone"
+                  type="tel"
+                  class="dev-input"
+                  formControlName="phone"
+                  mask="(00) 00000-0000"
+                  placeholder="(11) 99999-9999"
+                  autocomplete="tel" />
+                <span class="input-status-icon material-icons-round">
+                  {{ isFieldValid('phone') ? 'check_circle' : isFieldInvalid('phone') ? 'cancel' : 'phone_iphone' }}
+                </span>
+              </div>
+              <div class="field-hint-row">
+                @if (hasError('phone', 'required') || hasError('phone', 'minlength')) {
+                  <span class="field-error animate-fade-in">
+                    <span class="material-icons-round err-icon">warning</span>
+                    Telefone com DDD é obrigatório
+                  </span>
+                } @else if (isFieldValid('phone')) {
+                  <span class="field-success animate-fade-in">
+                    <span class="material-icons-round ok-icon">check_circle</span>
+                    Telefone válido
+                  </span>
+                } @else {
+                  <span class="field-hint">DDD + número com 11 dígitos</span>
+                }
+              </div>
+            </div>
+
+          </div><!-- /fields-grid -->
+
+          <!-- ── Actions ── -->
+          <div class="form-actions">
+            <button
+              type="button"
+              id="btn-reset-new-client"
+              class="btn-action btn-ghost"
+              [disabled]="isLoading"
+              matTooltip="Limpar todos os campos"
+              (click)="onReset()">
+              <span class="material-icons-round">refresh</span>
+              Limpar
+            </button>
+
+            <div class="actions-right">
+              <button
+                type="button"
+                id="btn-cancel-new-client"
+                class="btn-action btn-text"
+                [disabled]="isLoading"
+                (click)="onCancel()">
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                id="btn-save-new-client"
+                class="btn-action btn-primary"
+                [disabled]="isLoading || form.invalid">
+                @if (isLoading) {
+                  <div class="btn-spinner"></div>
+                  <span>Salvando...</span>
+                } @else {
+                  <span class="material-icons-round">person_add</span>
+                  <span>Cadastrar Cliente</span>
+                }
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile progress bar -->
+          <div class="mobile-progress" aria-hidden="true">
+            <div
+              class="mobile-progress-fill"
+              [style.width.%]="formProgress"
+              [style.background]="progressColor()">
+            </div>
+          </div>
+
+        </form>
+      }
+
+    </div><!-- /form-card -->
+  </main>
+
 </section>
