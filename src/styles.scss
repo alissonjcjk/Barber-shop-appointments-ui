@@ -1,26 +1,10 @@
-// =========================================================
+// ───────────────────────────────────────
 // BarberDev UI — Global Design System
-// =========================================================
+// ───────────────────────────────────────
 
-// ---------- Angular Material Theme ----------
+// We load Angular Material core only (no theme block — we rely on CSS vars)
 @use '@angular/material' as mat;
 @include mat.core();
-
-$barber-palette: mat.define-theme((
-  color: (
-    theme-type: dark,
-    primary: mat.$amber-palette,
-    tertiary: mat.$orange-palette,
-  ),
-  typography: (
-    brand-family: 'Poppins',
-    plain-family: 'Inter',
-  ),
-));
-
-:root {
-  @include mat.all-component-themes($barber-palette);
-}
 
 // ---------- CSS Custom Properties ----------
 :root {

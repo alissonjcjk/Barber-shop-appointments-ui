@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 interface NavItem {
@@ -12,7 +12,7 @@ interface NavItem {
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink],
   templateUrl: './menu-bar.component.html',
   styleUrl: './menu-bar.component.scss'
 })
