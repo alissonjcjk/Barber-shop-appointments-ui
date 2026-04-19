@@ -1,0 +1,167 @@
+<div class="lc-wrapper animate-fade-in-up">
+
+  <!-- ══════════ Toolbar ══════════════════════════════════════════ -->
+  <div class="lc-toolbar">
+
+    <!-- Left: counts -->
+    <div class="toolbar-info">
+      @if (!isLoading) {
+        <span class="count-badge">
+          <span class="material-icons-round">group</span>
+          @if (isFiltering) {
+            {{ filteredCount }} de {{ totalCount }} cliente{{ totalCount !== 1 ? 's' : '' }}
+          } @else {
+            {{ totalCount }} cliente{{ totalCount !== 1 ? 's' : '' }}
+          }
+        </span>
+      }
+    </div>
+
+    <!-- Centre: Search box -->
+    <div class="search-box" [class.has-value]="searchQuery">
+      <span class="material-icons-round search-icon">search</span>
+      <input
+        id="input-search-clients"
+        type="search"
+        class="search-input"
+        placeholder="Buscar por nome, e-mail ou telefone..."
+        [ngModel]="searchQuery"
+        (ngModelChange)="onSearch($event)"
+        autocomplete="off"
+        aria-label="Buscar clientes" />
+      @if (searchQuery) {
+        <button
+          type="button"
+          class="search-clear"
+          id="btn-clear-search"
+          aria-label="Limpar busca"
+          (click)="clearSearch()">
+          <span class="material-icons-round">close</span>
+        </button>
+      }
+    </div>
+
+    <!-- Right: New client button -->
+    <div class="toolbar-actions">
+      <button
+        type="button"
+        id="btn-new-client"
+        class="btn-new"
+        matTooltip="Cadastrar novo cliente"
+        (click)="navigateToNew()">
+        <span class="material-icons-round">person_add</span>
+        <span class="btn-new-label">Novo Cliente</span>
+      </button>
+
+      <button
+        type="button"
+        id="btn-reload-clients"
+        class="btn-icon-only"
+        matTooltip="Recarregar lista"
+        [disabled]="isLoading"
+        (click)="loadClients()">
+        <span class="material-icons-round" [class.spinning]="isLoading">refresh</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ══════════ Table Card ════════════════════════════════════════ -->
+  <div class="lc-card">
+
+    <!-- Top accent -->
+    <div class="card-accent"></div>
+
+    <!-- ── Table Header ── -->
+    <div class="table-header" role="row" aria-label="Cabeçalho da tabela">
+      <div class="th col-identity">
+        <button class="sort-btn" id="sort-name" (click)="onSort('name')" aria-label="Ordenar por nome">
+          <span>Nome</span>
+          <span class="material-icons-round sort-icon">{{ sortIcon('name') }}</span>
+        </button>
+      </div>
+      <div class="th col-email">
+        <button class="sort-btn" id="sort-email" (click)="onSort('email')" aria-label="Ordenar por e-mail">
+          <span>E-mail</span>
+          <span class="material-icons-round sort-icon">{{ sortIcon('email') }}</span>
+        </button>
+      </div>
+      <div class="th col-phone">Telefone</div>
+      <div class="th col-actions">Ações</div>
+    </div>
+
+    <!-- ── Skeleton Loading ── -->
+    @if (isLoading) {
+      <div class="table-body" role="status" aria-label="Carregando clientes">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton-row">
+            <div class="sk-avatar skeleton-block"></div>
+            <div class="sk-lines">
+              <div class="skeleton-block sk-line-a"></div>
+              <div class="skeleton-block sk-line-b"></div>
+            </div>
+            <div class="skeleton-block sk-email"></div>
+            <div class="skeleton-block sk-phone"></div>
+            <div class="sk-btns">
+              <div class="skeleton-block sk-btn"></div>
+              <div class="skeleton-block sk-btn"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Empty States ── -->
+    @if (!isLoading && totalCount === 0) {
+      <div class="empty-state animate-fade-in">
+        <div class="empty-icon-wrap">
+          <span class="material-icons-round empty-icon">group_off</span>
+        </div>
+        <h3 class="empty-title">Nenhum cliente cadastrado</h3>
+        <p class="empty-sub">Comece cadastrando o primeiro cliente para ver a lista aqui.</p>
+        <button type="button" class="btn-new" id="btn-empty-new-client" (click)="navigateToNew()">
+          <span class="material-icons-round">person_add</span>
+          Cadastrar primeiro cliente
+        </button>
+      </div>
+    }
+
+    @if (!isLoading && totalCount > 0 && filteredCount === 0) {
+      <div class="empty-state animate-fade-in">
+        <div class="empty-icon-wrap">
+          <span class="material-icons-round empty-icon">search_off</span>
+        </div>
+        <h3 class="empty-title">Nenhum resultado encontrado</h3>
+        <p class="empty-sub">Tente buscar por outro nome, e-mail ou telefone.</p>
+        <button type="button" class="btn-ghost" id="btn-clear-filter" (click)="clearSearch()">
+          <span class="material-icons-round">filter_alt_off</span>
+          Limpar filtro
+        </button>
+      </div>
+    }
+
+    <!-- ── Client Rows ── -->
+    @if (!isLoading && filteredCount > 0) {
+      <div class="table-body" role="rowgroup">
+        @for (client of visibleRows; track trackById($index, client)) {
+          <app-client-row
+            [client]="client"
+            [isDeleting]="deletingId === client.id"
+            (edit)="navigateToEdit($event)"
+            (remove)="onDelete($event)">
+          </app-client-row>
+        }
+      </div>
+
+      <!-- Footer count -->
+      <div class="table-footer">
+        <span class="footer-count">
+          Exibindo {{ filteredCount }} de {{ totalCount }} registro{{ totalCount !== 1 ? 's' : '' }}
+          @if (isFiltering) { · filtrado{{ filteredCount !== 1 ? 's' : '' }} }
+        </span>
+      </div>
+    }
+
+  </div><!-- /lc-card -->
+
+</div>
