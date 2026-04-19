@@ -1,0 +1,55 @@
+<article
+  class="client-row"
+  [class.is-deleting]="isDeleting"
+  [attr.aria-label]="'Cliente ' + client.name"
+  role="row">
+
+  <!-- Avatar + Name -->
+  <div class="col-identity">
+    <div class="avatar" aria-hidden="true">{{ client.initials }}</div>
+    <div class="identity-text">
+      <span class="client-name">{{ client.name }}</span>
+      <span class="client-id">#{{ client.id }}</span>
+    </div>
+  </div>
+
+  <!-- Email -->
+  <div class="col-email">
+    <span class="material-icons-round col-icon">alternate_email</span>
+    <span class="col-value" [title]="client.email">{{ client.email }}</span>
+  </div>
+
+  <!-- Phone -->
+  <div class="col-phone">
+    <span class="material-icons-round col-icon">smartphone</span>
+    <span class="col-value">{{ client.formattedPhone }}</span>
+  </div>
+
+  <!-- Actions -->
+  <div class="col-actions">
+    <button
+      type="button"
+      class="action-btn edit-btn"
+      id="btn-edit-client-{{ client.id }}"
+      matTooltip="Editar cliente"
+      [disabled]="isDeleting"
+      (click)="onEdit()">
+      <span class="material-icons-round">edit</span>
+    </button>
+
+    <button
+      type="button"
+      class="action-btn delete-btn"
+      id="btn-delete-client-{{ client.id }}"
+      matTooltip="Excluir cliente"
+      [disabled]="isDeleting"
+      (click)="onRemove()">
+      @if (isDeleting) {
+        <div class="delete-spinner"></div>
+      } @else {
+        <span class="material-icons-round">delete_outline</span>
+      }
+    </button>
+  </div>
+
+</article>
